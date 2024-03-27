@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/user")
 @Slf4j
 @Api(tags = "用户接口")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173",allowCredentials = "true")
 public class UserController {
 
     @Resource
@@ -110,6 +110,7 @@ public class UserController {
     @GetMapping("/current")
     @ApiOperation("获取当前用户信息")
     public BaseResponse<User> getCurrentUser(HttpServletRequest request){
+        log.info("获取当前用户信息");
         if (request == null){
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
@@ -134,7 +135,8 @@ public class UserController {
     @GetMapping("/search")
     @ApiOperation("用户查询")
     public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request){
-        if (!isAdmin(request)){
+        log.info("用户查询:{}",username);
+        if (!userService.isAdmin(request)){
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -155,7 +157,8 @@ public class UserController {
     @PostMapping("/delete")
     @ApiOperation("用户删除")
     public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request){
-        if (!isAdmin(request)){
+        log.info("用户删除:{}",id);
+        if (!userService.isAdmin(request)){
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         if (id <= 0){
@@ -165,12 +168,7 @@ public class UserController {
         return ResultUtils.success(result);
     }
 
-    private boolean isAdmin(HttpServletRequest request){
-        //仅管理员可查
-        Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-        User user = (User) userObj;
-        return user != null && user.getUserRole() == UserConstant.ADMIN_ROLE;
-    }
+
 
     //根据标签查询用户
     @GetMapping("/search/tags")
@@ -183,4 +181,28 @@ public class UserController {
         List<User> userList = userService.searchUsersByTags(tagNameList);
         return ResultUtils.success(userList);
     }
+
+    /**
+     * 更新用户
+     * @param user
+     * @return
+     */
+    @PostMapping("/update")
+    @ApiOperation("用户更新")
+    public BaseResponse<Integer> updateUser(@RequestBody User user, HttpServletRequest request){
+        log.info("用户更新:{}",user);
+        //1.校验用户是否为空
+        if (user == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //2.校验权限
+        User loginUser = userService.getLoginUser(request);
+
+        //3.更新
+        int result = userService.updateUser(user, loginUser);
+        return ResultUtils.success(result);
+    }
+
+
 }
+
