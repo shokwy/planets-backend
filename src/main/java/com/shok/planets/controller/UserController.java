@@ -204,5 +204,18 @@ public class UserController {
     }
 
 
+    /**
+     * 推荐页面
+     * @param request
+     * @return
+     */
+    @GetMapping("/recommend")
+    @ApiOperation("推荐页面")
+    public BaseResponse<List<User>> recommendUsers(HttpServletRequest request){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        List<User> userList = userService.list(queryWrapper);
+        List<User> list = userList.stream().map(user -> userService.getSafetyUser(user)).collect(Collectors.toList());
+        return ResultUtils.success(list);
+    }
 }
 
