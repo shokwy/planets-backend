@@ -83,6 +83,10 @@ public class User implements Serializable {
      */
     private Integer userRole;
 
+    /**
+     * 个人描述
+     */
+    private String introduction;
 
     /**
      * 标签列表

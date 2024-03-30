@@ -27,7 +27,7 @@ class UserMapperTest {
         user.setUserPassword("123");
         user.setPhone("345");
         user.setEmail("567");
-        user.setPlanetCode("12324");
+        user.setIntroduction("加油");
 
         int insert = userMapper.insert(user);
         System.out.println(user.getId());

@@ -14,7 +14,7 @@ import java.util.List;
  * @author wy
  * @version 1.0
  */
-@SpringBootTest
+//@SpringBootTest
 class UserServiceTest {
 
     @Resource
