@@ -3,6 +3,13 @@ package com.shok.planets.service;
 import com.shok.planets.model.domain.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.shok.planets.model.domain.User;
+import com.shok.planets.model.dto.TeamQuery;
+import com.shok.planets.model.request.TeamJoinRequest;
+import com.shok.planets.model.request.TeamQuitRequest;
+import com.shok.planets.model.request.TeamUpdateRequest;
+import com.shok.planets.model.vo.TeamUserVO;
+
+import java.util.List;
 
 /**
 * @author SHOK
@@ -18,4 +25,44 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     long addTeam(Team team, User loginUser);
+
+    /**
+     * 查找队伍
+     *
+     * @param teamQuery
+     * @param isAdmin
+     * @return
+     */
+    List<TeamUserVO> listTeams(TeamQuery teamQuery, boolean isAdmin);
+
+    /**
+     * 修改队伍
+     * @param loginUser
+     * @return
+     */
+    boolean updateTeam(TeamUpdateRequest teamUpdateRequest, User loginUser);
+
+    /**
+     * 加入队伍
+     * @param teamJoinRequest
+     * @param loginUser
+     * @return
+     */
+    boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser);
+
+    /**
+     * 退出队伍
+     * @param teamQuitRequest
+     * @param loginUser
+     * @return
+     */
+    boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
+
+    /**
+     * 解散队伍
+     * @param id
+     * @param loginUser
+     * @return
+     */
+    boolean deleteTeam(long id, User loginUser);
 }

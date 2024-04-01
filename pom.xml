@@ -116,7 +116,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.shok.planets.UserCenterApplication</mainClass>
+                    <mainClass>com.shok.planets.PlanetsApplication</mainClass>
                     <skip>true</skip>
                 </configuration>
                 <executions>

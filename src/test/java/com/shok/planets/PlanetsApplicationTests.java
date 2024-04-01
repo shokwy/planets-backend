@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @SpringBootTest
-class UserCenterApplicationTests {
+class PlanetsApplicationTests {
 
     @Resource
     private UserMapper userMapper;

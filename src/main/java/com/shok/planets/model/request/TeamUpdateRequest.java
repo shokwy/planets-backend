@@ -1,10 +1,18 @@
-package com.shok.planets.model.dto;
+package com.shok.planets.model.request;
 
-import com.shok.planets.common.PageRequest;
 import lombok.Data;
+import java.util.Date;
+import java.io.Serializable;
 
+/**
+ * 用户登录请求体
+ *
+ * @author wy
+ */
 @Data
-public class TeamQuery extends PageRequest {
+public class TeamUpdateRequest implements Serializable {
+
+
     /**
      * id
      */
@@ -21,14 +29,9 @@ public class TeamQuery extends PageRequest {
     private String description;
 
     /**
-     * 最大人数
+     * 过期时间
      */
-    private Integer maxNum;
-
-    /**
-     * 用户id
-     */
-    private Long userId;
+    private Date expireTime;
 
     /**
      * 0 - 公开，1 - 私有，2 - 加密
@@ -36,7 +39,7 @@ public class TeamQuery extends PageRequest {
     private Integer status;
 
     /**
-     * 搜索队伍关键词
+     * 密码
      */
-    private String searchText;
+    private String password;
 }
