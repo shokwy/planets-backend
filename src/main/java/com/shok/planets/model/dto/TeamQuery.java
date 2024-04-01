@@ -3,12 +3,20 @@ package com.shok.planets.model.dto;
 import com.shok.planets.common.PageRequest;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TeamQuery extends PageRequest {
     /**
      * id
      */
     private Long id;
+
+    /**
+     * id 列表
+     */
+    private List<Long> idList;
+
 
     /**
      * 队伍名称

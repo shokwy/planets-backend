@@ -8,14 +8,13 @@ import com.shok.planets.common.ResultUtils;
 import com.shok.planets.exception.BusinessException;
 import com.shok.planets.model.domain.Team;
 import com.shok.planets.model.domain.User;
+import com.shok.planets.model.domain.UserTeam;
 import com.shok.planets.model.dto.TeamQuery;
-import com.shok.planets.model.request.TeamAddRequest;
-import com.shok.planets.model.request.TeamJoinRequest;
-import com.shok.planets.model.request.TeamQuitRequest;
-import com.shok.planets.model.request.TeamUpdateRequest;
+import com.shok.planets.model.request.*;
 import com.shok.planets.model.vo.TeamUserVO;
 import com.shok.planets.service.TeamService;
 import com.shok.planets.service.UserService;
+import com.shok.planets.service.UserTeamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author wy
@@ -43,6 +45,9 @@ public class TeamController {
 
     @Resource
     private TeamService teamService;
+
+    @Resource
+    private UserTeamService userTeamService;
 
     /**
      * 新建队伍
@@ -91,7 +96,7 @@ public class TeamController {
      */
     @GetMapping("/get")
     @ApiOperation("通过id搜队伍")
-    public BaseResponse<Team> getTeamById(@RequestBody long id) {
+    public BaseResponse<Team> getTeamById(long id) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -173,21 +178,66 @@ public class TeamController {
 
     /**
      * 解散队伍
-     * @param id
+     * @param deleteRequest
      * @param request
      * @return
      */
     @PostMapping("/delete")
     @ApiOperation("解散队伍")
-    public BaseResponse<Boolean> deleteTeam(@RequestBody long id, HttpServletRequest request) {
-        if (id <= 0) {
+    public BaseResponse<Boolean> deleteTeam(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        long id = deleteRequest.getId();
         User loginUser = userService.getLoginUser(request);
-        boolean result = teamService.deleteTeam(id,loginUser);
+        boolean result = teamService.deleteTeam(id, loginUser);
         if (!result) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "删除失败");
         }
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 获取我创建的队伍
+     *
+     * @param teamQuery
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/my/create")
+    public BaseResponse<List<TeamUserVO>> listMyCreateTeams(TeamQuery teamQuery, HttpServletRequest request) {
+        if (teamQuery == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        teamQuery.setUserId(loginUser.getId());
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        return ResultUtils.success(teamList);
+    }
+
+    /**
+     * 获取我加入的队伍
+     *
+     * @param teamQuery
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/my/join")
+    public BaseResponse<List<TeamUserVO>> listMyJoinTeams(TeamQuery teamQuery, HttpServletRequest request) {
+        if (teamQuery == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", loginUser.getId());
+        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+        // 取出不重复的队伍 id
+        // teamId userId
+        Map<Long, List<UserTeam>> listMap = userTeamList.stream()
+                .collect(Collectors.groupingBy(UserTeam::getTeamId));
+        List<Long> idList = new ArrayList<>(listMap.keySet());
+        teamQuery.setIdList(idList);
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        return ResultUtils.success(teamList);
     }
 }
