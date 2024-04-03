@@ -121,11 +121,7 @@ public class UserController {
         if (request == null){
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
-        Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null){
-            return null;
-        }
+        User currentUser = userService.getLoginUser(request);
         Long userId = currentUser.getId();
         // todo 校验用户是否合法
         User user = userService.getById(userId);
