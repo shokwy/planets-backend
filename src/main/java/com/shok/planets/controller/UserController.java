@@ -58,15 +58,16 @@ public class UserController {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
 
+        String username = userRegisterRequest.getUsername();
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
 
-
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)){
+        if (StringUtils.isAnyBlank(username,userAccount,userPassword,checkPassword)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+
+        long result = userService.userRegister(userRegisterRequest);
         return ResultUtils.success(result);
     }
 
@@ -250,6 +251,40 @@ public class UserController {
         }
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.matchUsers(num, user));
+    }
+
+    /**
+     * 添加标签
+     * @param tags
+     * @param request
+     * @return
+     */
+    @PostMapping("/addTags")
+    @ApiOperation("添加标签")
+    public BaseResponse<Boolean> addTags(@RequestBody String tags, HttpServletRequest request){
+        if(tags == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean result = userService.addTags(loginUser,tags);
+        return  ResultUtils.success(result);
+    }
+
+    /**
+     * 删除标签
+     * @param tags
+     * @param request
+     * @return
+     */
+    @PostMapping("/deleteTag")
+    @ApiOperation("删除标签")
+    public BaseResponse<Boolean> deleteTags(@RequestBody String tags, HttpServletRequest request){
+        if(tags == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean result = userService.deleteTag(loginUser,tags);
+        return  ResultUtils.success(result);
     }
 }
 

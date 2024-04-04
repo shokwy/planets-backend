@@ -2,6 +2,7 @@ package com.shok.planets.service;
 
 import com.shok.planets.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.shok.planets.model.request.UserRegisterRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -17,13 +18,10 @@ public interface UserService extends IService<User> {
 
     /**
      * 用户注册
-     *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
-     * @return 新用户 id
+     * @param userRegisterRequest
+     * @return
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(UserRegisterRequest userRegisterRequest);
 
     /**
      * 用户登录
@@ -89,4 +87,20 @@ public interface UserService extends IService<User> {
      * @return
      */
     List<User> matchUsers(long num, User user);
+
+    /**
+     * 添加标签
+     * @param loginUser
+     * @param tags
+     * @return
+     */
+    boolean addTags(User loginUser, String tags);
+
+    /**
+     * 删除标签
+     * @param loginUser
+     * @param tags
+     * @return
+     */
+    boolean deleteTag(User loginUser, String tags);
 }

@@ -9,6 +9,7 @@ import com.shok.planets.constant.UserConstant;
 import com.shok.planets.exception.BusinessException;
 import com.shok.planets.mapper.UserMapper;
 import com.shok.planets.model.domain.User;
+import com.shok.planets.model.request.UserRegisterRequest;
 import com.shok.planets.service.UserService;
 import com.shok.planets.utils.AlgorithmUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -44,16 +45,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     /**
      * 用户注册
-     *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
+     * @param userRegisterRequest
      * @return
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(UserRegisterRequest userRegisterRequest) {
         //1.校验
-        if (StringUtils.isAnyBlank(userAccount,userPassword,checkPassword)){
+        String username = userRegisterRequest.getUsername();
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+
+        if (StringUtils.isAnyBlank(username,userAccount,userPassword,checkPassword)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         if (userAccount.length() < 4){
@@ -227,7 +230,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 2. 校验权限
         // 2.1 管理员可以更新任意信息
         // 2.2 用户只能更新自己的信息
-        if (!isAdmin(loginUser) && userId != loginUser.getId()) {
+        if (!isAdmin(loginUser) && !userId.equals(loginUser.getId())) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         User oldUser = this.getById(user.getId());
@@ -297,6 +300,57 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             finalUserList.add(userIdUserListMap.get(userId).get(0));
         }
         return finalUserList;
+    }
+
+    public boolean addTags(User loginUser, String tags) {
+        // 根据当前id用户 查询该id的全部内容
+        User userId = this.getById(loginUser.getId());
+        // 获取当前用户的标签
+        String tag = userId.getTags();
+
+        Gson gson = new Gson();
+        Set<String> tagList;
+
+        if (tag == null || tag.isEmpty()) {
+            tagList = new HashSet<>(); // 创建新的标签集合
+        } else {
+            tagList = gson.fromJson(tag, new TypeToken<Set<String>>() {}.getType());
+        }
+        if(tagList.size() >= 10){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"最多设置10个标签");
+        }
+
+        tagList.add(tags);
+        String tagsList = gson.toJson(tagList);
+        userId.setTags(tagsList);
+        boolean result = this.updateById(userId);
+        return result;
+    }
+
+    @Override
+    public boolean deleteTag(User loginUser, String tags) {
+        // 根据当前id用户 查询该id的全部内容
+        User userId = this.getById(loginUser.getId());
+        // 获取当前用户的标签
+        String tag = userId.getTags();
+
+        Gson gson = new Gson();
+        Set<String> tagList;
+
+        if (tag == null || tag.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"标签为空");
+        }
+
+        tagList = gson.fromJson(tag, new TypeToken<Set<String>>() {}.getType());
+
+        boolean removed = tagList.remove(tags);
+        if (!removed) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"标签不存在");
+        }
+        String tagsList = gson.toJson(tagList);
+        userId.setTags(tagsList);
+        boolean result = this.updateById(userId);
+        return result;
     }
 
     /**

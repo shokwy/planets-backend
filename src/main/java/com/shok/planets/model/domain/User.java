@@ -35,7 +35,7 @@ public class User implements Serializable {
     private String avatarUrl;
 
     /**
-     * 性别
+     * 性别 0-男   1-女
      */
     private Integer gender;
 

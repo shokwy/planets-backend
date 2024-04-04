@@ -126,7 +126,7 @@ public class TeamController {
         final List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
         // 2、判断当前用户是否已加入队伍
         QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
-
+        try {
             User loginUser = userService.getLoginUser(request);
             userTeamQueryWrapper.eq("userId", loginUser.getId());
             userTeamQueryWrapper.in("teamId", teamIdList);
@@ -137,6 +137,9 @@ public class TeamController {
                 boolean hasJoin = hasJoinTeamIdSet.contains(team.getId());
                 team.setHasJoin(hasJoin);
             });
+        } catch (Exception e) {}
+        // 3、设置加入队伍的人数
+        teamService.setHasJoinNum(teamList);
 
         return ResultUtils.success(teamList);
     }
@@ -230,7 +233,11 @@ public class TeamController {
         User loginUser = userService.getLoginUser(request);
         teamQuery.setUserId(loginUser.getId());
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        //设置已加入队伍
         teamList.forEach(team -> team.setHasJoin(true));
+        //设置已加入队伍人数
+        teamService.setHasJoinNum(teamList);
+
         return ResultUtils.success(teamList);
     }
 
@@ -257,7 +264,10 @@ public class TeamController {
         List<Long> idList = new ArrayList<>(listMap.keySet());
         teamQuery.setIdList(idList);
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        //设置已加入队伍
         teamList.forEach(team -> team.setHasJoin(true));
+        //设置已加入队伍人数
+        teamService.setHasJoinNum(teamList);
         return ResultUtils.success(teamList);
     }
 

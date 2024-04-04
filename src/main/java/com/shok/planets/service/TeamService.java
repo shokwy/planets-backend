@@ -65,4 +65,10 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean deleteTeam(long id, User loginUser);
+
+    /**
+     * 设置已加入队伍人数
+     * @param teamList
+     */
+    void setHasJoinNum(List<TeamUserVO> teamList);
 }
