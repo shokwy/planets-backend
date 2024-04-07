@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.shok.planets.common.ErrorCode;
 import com.shok.planets.enums.TeamStatusEnum;
 import com.shok.planets.exception.BusinessException;
+import com.shok.planets.mapper.UserMapper;
 import com.shok.planets.model.domain.Team;
 import com.shok.planets.model.domain.User;
 import com.shok.planets.model.domain.UserTeam;
@@ -45,6 +46,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
     private UserTeamService userTeamService;
     @Resource
     private UserService userService;
+    @Resource
+    private UserMapper userMapper;
     @Resource
     private RedissonClient redissonClient;
 
@@ -394,6 +397,23 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         // 队伍 id => 加入这个队伍的用户列表
         Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
         teamList.forEach(team -> team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size()));
+    }
+
+    @Override
+    public List<UserVO> getTeamMembers(Integer teamId) {
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teamId",teamId);
+        List<UserTeam> list = userTeamService.list(queryWrapper);
+        List<Long> ids = new ArrayList<>();
+        list.forEach(userTeam -> ids.add(userTeam.getUserId()));
+        List<User> users = userMapper.selectBatchIds(ids);
+        List<UserVO> userVOS = new ArrayList<>();
+        users.forEach(user -> {
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(user,userVO);
+            userVOS.add(userVO);
+        });
+        return userVOS;
     }
 
 

@@ -12,6 +12,7 @@ import com.shok.planets.model.domain.UserTeam;
 import com.shok.planets.model.dto.TeamQuery;
 import com.shok.planets.model.request.*;
 import com.shok.planets.model.vo.TeamUserVO;
+import com.shok.planets.model.vo.UserVO;
 import com.shok.planets.service.TeamService;
 import com.shok.planets.service.UserService;
 import com.shok.planets.service.UserTeamService;
@@ -107,6 +108,8 @@ public class TeamController {
         }
         return ResultUtils.success(team);
     }
+
+
 
     /**
      * 查询队伍
@@ -226,6 +229,7 @@ public class TeamController {
      * @return
      */
     @GetMapping("/list/my/create")
+    @ApiOperation("获取我创建的队伍")
     public BaseResponse<List<TeamUserVO>> listMyCreateTeams(TeamQuery teamQuery, HttpServletRequest request) {
         if (teamQuery == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -249,6 +253,7 @@ public class TeamController {
      * @return
      */
     @GetMapping("/list/my/join")
+    @ApiOperation("获取我加入的队伍")
     public BaseResponse<List<TeamUserVO>> listMyJoinTeams(TeamQuery teamQuery, HttpServletRequest request) {
         if (teamQuery == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -271,4 +276,18 @@ public class TeamController {
         return ResultUtils.success(teamList);
     }
 
+    /**
+     * 获取队伍成员
+     * @param teamId
+     * @return
+     */
+    @GetMapping("/members/{teamId}")
+    @ApiOperation("获取队伍成员")
+    public BaseResponse<List<UserVO>> getTeamMembers(@PathVariable("teamId") Integer teamId){
+        if (teamId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<UserVO> result = teamService.getTeamMembers(teamId);
+        return ResultUtils.success(result);
+    }
 }

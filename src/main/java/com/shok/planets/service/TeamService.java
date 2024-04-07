@@ -8,6 +8,7 @@ import com.shok.planets.model.request.TeamJoinRequest;
 import com.shok.planets.model.request.TeamQuitRequest;
 import com.shok.planets.model.request.TeamUpdateRequest;
 import com.shok.planets.model.vo.TeamUserVO;
+import com.shok.planets.model.vo.UserVO;
 
 import java.util.List;
 
@@ -71,4 +72,11 @@ public interface TeamService extends IService<Team> {
      * @param teamList
      */
     void setHasJoinNum(List<TeamUserVO> teamList);
+
+    /**
+     * 获取队伍成员
+     * @param id
+     * @return
+     */
+    List<UserVO> getTeamMembers(Integer teamId);
 }

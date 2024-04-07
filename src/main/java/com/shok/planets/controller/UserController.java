@@ -10,11 +10,13 @@ import com.shok.planets.exception.BusinessException;
 import com.shok.planets.model.domain.User;
 import com.shok.planets.model.request.UserLoginRequest;
 import com.shok.planets.model.request.UserRegisterRequest;
+import com.shok.planets.model.vo.UserVO;
 import com.shok.planets.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
@@ -286,5 +288,23 @@ public class UserController {
         boolean result = userService.deleteTag(loginUser,tags);
         return  ResultUtils.success(result);
     }
+
+    /**
+     * 根据指定id查询用户信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查用户信息")
+    public BaseResponse<UserVO> getUserById(@PathVariable("id") Integer id) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = this.userService.getById(id);
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user,userVO);
+        return ResultUtils.success(userVO);
+    }
+
 }
 
