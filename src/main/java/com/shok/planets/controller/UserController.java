@@ -306,5 +306,38 @@ public class UserController {
         return ResultUtils.success(userVO);
     }
 
+    /**
+     * 判断是否为好友
+     * @param id
+     * @param request
+     * @return
+     */
+    @GetMapping("/isFriend/{id}")
+    @ApiOperation("判断是否为好友")
+    public BaseResponse<Boolean> isFriend(@PathVariable("id") Long id,HttpServletRequest request) {
+        if(id< 0 ){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在");
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean friend = userService.isFriend(id, loginUser);
+
+        return ResultUtils.success(friend);
+
+
+    }
+
+    /**
+     * 根据id获取好友列表
+     * @param request
+     * @return
+     */
+    @GetMapping("/friends")
+    @ApiOperation(value ="根据id获取好友列表")
+    public BaseResponse<List<User>> getFriends(HttpServletRequest request) {
+        User currentUser = userService.getLoginUser(request);
+        List<User> getUser = userService.getFriendsById(currentUser);
+        return ResultUtils.success(getUser);
+    }
+
 }
 

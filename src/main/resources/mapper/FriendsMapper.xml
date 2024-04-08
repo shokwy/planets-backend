@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shok.planets.mapper.FriendsMapper">
+
+    <select id="isFriend" resultType="_int">
+        select count(fromId) from shok.friends
+                  where
+                      ((fromId = #{id} and receiveId = #{userId})
+                     or
+                      (fromId = #{userId} and receiveId = #{id}))
+                    and status = 1
+    </select>
+
+    <resultMap id="BaseResultMap" type="com.shok.planets.model.domain.Friends">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="fromId" column="fromId" jdbcType="BIGINT"/>
+            <result property="receiveId" column="receiveId" jdbcType="BIGINT"/>
+            <result property="isRead" column="isRead" jdbcType="TINYINT"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,fromId,receiveId,
+        isRead,status,createTime,
+        updateTime,isDelete,remark
+    </sql>
+</mapper>

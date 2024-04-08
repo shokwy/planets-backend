@@ -3,6 +3,7 @@ package com.shok.planets.service;
 import com.shok.planets.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.shok.planets.model.request.UserRegisterRequest;
+import com.shok.planets.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -103,4 +104,22 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean deleteTag(User loginUser, String tags);
+
+    /**
+     * 根据id获取好友列表
+     *
+     * @param currentUser
+     * @return
+     */
+    List<User> getFriendsById(User currentUser);
+
+
+    /**
+     * 是否为好友
+     * @param id
+     * @param loginUser
+     * @return
+     */
+
+    boolean isFriend(Long id, User loginUser);
 }

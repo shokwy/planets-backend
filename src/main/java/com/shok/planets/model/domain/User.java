@@ -93,6 +93,11 @@ public class User implements Serializable {
      */
     private String tags;
 
+    /**
+     * 添加的好友
+     */
+    private String userIds;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 

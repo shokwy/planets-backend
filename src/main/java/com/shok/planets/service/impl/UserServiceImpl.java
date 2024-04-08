@@ -5,16 +5,21 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.shok.planets.common.ErrorCode;
+import com.shok.planets.constant.FriendConstant;
 import com.shok.planets.constant.UserConstant;
 import com.shok.planets.exception.BusinessException;
+import com.shok.planets.mapper.FriendsMapper;
 import com.shok.planets.mapper.UserMapper;
+import com.shok.planets.model.domain.Friends;
 import com.shok.planets.model.domain.User;
 import com.shok.planets.model.request.UserRegisterRequest;
+import com.shok.planets.model.vo.UserVO;
 import com.shok.planets.service.UserService;
 import com.shok.planets.utils.AlgorithmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
@@ -25,6 +30,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.shok.planets.utils.StringUtils.stringJsonListToLongSet;
 
 /**
  * 用户服务实现类
@@ -39,6 +46,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private FriendsMapper friendsMapper;
 
     private final String SALT = "shok";
 
@@ -177,6 +187,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setUserRole(originUser.getUserRole());
         safetyUser.setIntroduction(originUser.getIntroduction());
         safetyUser.setTags(originUser.getTags());
+        safetyUser.setUserIds(originUser.getUserIds());
         return safetyUser;
     }
 
@@ -352,6 +363,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         userId.setTags(tagsList);
         boolean result = this.updateById(userId);
         return result;
+    }
+
+    /**
+     * 是否为好友
+     * @param id
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public boolean isFriend(Long id, User loginUser) {
+        User userId = this.getById(loginUser);
+        String userIds = userId.getUserIds();
+        if(userIds==null){
+            return false;
+        }
+        Gson gson = new Gson();
+        Set<Long> userList = stringJsonListToLongSet(userIds);
+//        Set<String> userList = gson.fromJson(userIds,new TypeToken<Set<String>>(){}.getType());
+        return (userList.contains(id));
+
+    }
+
+    @Override
+    public List<User> getFriendsById(User currentUser) {
+        // 查询当前id的全部数据
+        User loginUser = this.getById(currentUser.getId());
+        // 全部数据里的好友列表(userIds) 转换成long集合
+        Set<Long> friendsId = stringJsonListToLongSet(loginUser.getUserIds());
+        return friendsId.stream().map(user -> this.getSafetyUser(this.getById(user))).collect(Collectors.toList());
     }
 
     /**
