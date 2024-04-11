@@ -144,7 +144,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat>
         messageVo.setFormUser(fromWebSocketVo);
         messageVo.setToUser(toWebSocketVo);
         messageVo.setText(text);
-        messageVo.setCreateTime(DateUtil.format(createTime, "yyyy年MM月dd日 HH:mm:ss"));
+        messageVo.setCreateTime(DateUtil.format(createTime, "MM/dd HH:mm"));
         messageVo.setChatType(chatType);
         return messageVo;
     }
